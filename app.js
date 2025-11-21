@@ -6,7 +6,12 @@ const validator = require("validator");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
+app.use(cors({
+    origin: "http://localhost:5173/",
+    credentials: true
+}))
 app.use(express.json());
 app.use(cookieParser());
 
@@ -123,7 +128,7 @@ app.post("/login", async(req, res) => {
             // if password is valid, send the token
             const token = await jwt.sign({_id: user._id}, "Dev@Tinder", {expiresIn: "1d"})
             res.cookie("token", token, {expires: new Date(Date.now() + 8 * 360000)});
-            res.json({message: "Login Successful, Welcome " + user.firstName})
+            res.json({message: "Login Successful, Welcome " + user.firstName, data: user})
          }else{
             return res.status(401).send("Invalid credentials")
          }
