@@ -351,7 +351,7 @@ app.get("/feed", userAuth, async(req, res) => {
                 {_id: {$nin: Array.from(hideFromFeed)} },
                 {_id: {$ne: loggedInUser._id} },
             ]
-        }).select(["firstName"]).skip(skip).limit(limit);
+        }).select(["firstName", "lastName", "photoUrl", "about", "age", "gender", "skills"]).skip(skip).limit(limit);
        res.json({message: `Feed ${users.length}`, users})
 
     } catch (error) {
