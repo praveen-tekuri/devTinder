@@ -1,0 +1,60 @@
+## devTinder initialization
+- devTinder
+    - app.js
+- project initialization
+    - npm init
+- npm i express
+- npm i mongoose
+- npm i nodemon -g (windows => cmd => run as administrator)
+- userSchema
+    - npm i validator
+- signUp API
+    - validations
+    - npm i bcrypt
+        - encrypt the password and save
+    - app.use(express.json())
+        - parses incoming requests with JSON payloads
+- Login API
+    - Compare the password using bcrypt.compare()
+    - npm i jsonwebtoken
+        - send the token if the credentials valid
+- Profile View API
+    - npm i cookie-parser
+        - parse http request cookies
+    - userAuth
+        - validate the token
+- Profile Edit API
+    - update only Allowed fields
+    - update the password in encrypted format
+- sendConnectionRequest
+    - http://localhost:7780/request/send/:status/:userId
+    - fromUserId to toUserId
+    - new Schema for connections
+    - validations
+        - Check if the toUser exists in db or not
+        - Status should be interested or ignored
+        - Don't allow the user to send the connection to self.
+        - Check if connection request already sent from fromUserId to toUserId or toUserId to fromUserId
+- getAllConnectionRequests
+    - Get all the pending requests to the toUserId:loggedInUser and status should be interested.
+- reviewRequests
+    - Check if the requestId is present or not in the database
+    - ALLOW status as accepted or rejected
+    - find the Request with requestId, toUserId will be loggedInUser and status should be interested.
+    - assign the status accepted or rejected.
+- get all connections
+    - find all the connections where loggedInUser sent or received the request and accepted.
+        - Praveen => Naveen => "accepted"
+        - Naveen => Praveen => "accepted"
+    - if the fromUserId is same as the loggedInUserId then return toUserId
+- feed API
+    -  find all the connections / requests in UserConnections Schema
+    -  get the unique _id's using new Set() data structure
+    -  find the users with these _id's in User Schema, except these _id's, all other _id's can be shown in feed.
+        - _id should not in the connections/requests
+        - _id should not match the self _id
+    - Pagination
+        - /feed?page=1&limit=10 => 1-10  => .skip(0) & .limit(10)
+        - /feed?page=2&limit=10 => 11-20 => .skip(10) & .limit(10)
+        - /feed?page=3&limit=10 => 21-30 => .skip(20) & .limit(10)
+     
