@@ -1,19 +1,23 @@
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
-const url ="mongodb+srv://exploreui:UFnzEcXFntmRGRRY@nodejs.vlzkbbh.mongodb.net/devTinder7780";
+const url ="mongodb+srv://exploreui:XrEIfat4039qQFeA@nodejs.vlzkbbh.mongodb.net/devTinder7780";
 const validator = require("validator");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
-app.use(cors({
-    origin: "http://localhost:5173/",
-    credentials: true
-}))
+app.use(
+    cors({
+        origin: "http://localhost:5173",
+        credentials: true,
+    })
+)
 app.use(express.json());
 app.use(cookieParser());
+
+const SAFE_DATA = ["firstName", "lastName", "photoUrl", "about", "age", "gender", "skills"]
 
 // schema models
 const userSchema = new mongoose.Schema({
@@ -24,10 +28,10 @@ const userSchema = new mongoose.Schema({
         type: String, required: true, 
     },
     age: {
-        type: Number, required: true,
+        type: Number,
     },
     gender: {
-        type: String, required: true,
+        type: String, 
         validate(value){
             if(!["male", "female", "others"].includes(value)){
                 throw new Error("Please enter valid gender type")
@@ -48,7 +52,6 @@ const userSchema = new mongoose.Schema({
     },
     skills: {
         type: [String],
-        required: true,
     },
     photoUrl: {
         type: String,
@@ -166,7 +169,7 @@ app.get("/profile/view/", userAuth, async(req, res) => {
     }
 })
 
-app.post("/profile/edit", userAuth, async(req, res) => {
+app.patch("/profile/edit", userAuth, async(req, res) => {
     try {
         const loggedInUser = req.user;
         // Fields allowed to update
@@ -248,9 +251,9 @@ app.get("/profile/requests", userAuth, async(req, res) => {
         // find all the pending requests to the toUserId:loggedInUser and status should be interested.
         const requests = await UserConnection.find({
             toUserId: loggedInUser._id, status: "interested"
-        })
+        }).populate("fromUserId", SAFE_DATA)
         if(requests.length === 0){
-            res.status(401).send("No Connections found")
+            res.status(401).send("No Requests found")
         }
         res.json({message: `${requests.length} Pending requests`, requests})
     } catch (error) {
@@ -301,7 +304,7 @@ app.get("/profile/connections", userAuth, async(req, res) => {
                 {fromUserId: loggedInUser._id, status: "accepted"},
                 {toUserId: loggedInUser._id, status: "accepted"},
             ]
-        }).populate("fromUserId", ["firstName"]).populate("toUserId", ["firstName"]);
+        }).populate("fromUserId", SAFE_DATA).populate("toUserId", SAFE_DATA);
 
         if(connections.length === 0){
             res.status(401).send("You have no connection");
@@ -351,7 +354,7 @@ app.get("/feed", userAuth, async(req, res) => {
                 {_id: {$nin: Array.from(hideFromFeed)} },
                 {_id: {$ne: loggedInUser._id} },
             ]
-        }).select(["firstName", "lastName", "photoUrl", "about", "age", "gender", "skills"]).skip(skip).limit(limit);
+        }).select(SAFE_DATA).skip(skip).limit(limit);
        res.json({message: `Feed ${users.length}`, users})
 
     } catch (error) {
