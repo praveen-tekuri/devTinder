@@ -253,7 +253,7 @@ app.get("/profile/requests", userAuth, async(req, res) => {
             toUserId: loggedInUser._id, status: "interested"
         }).populate("fromUserId", SAFE_DATA)
         if(requests.length === 0){
-            res.status(401).send("No Requests found")
+            return res.status(400).json({message: "No Requests found"})
         }
         res.json({message: `${requests.length} Pending requests`, requests})
     } catch (error) {
@@ -306,10 +306,6 @@ app.get("/profile/connections", userAuth, async(req, res) => {
             ]
         }).populate("fromUserId", SAFE_DATA).populate("toUserId", SAFE_DATA);
 
-        if(connections.length === 0){
-            res.status(401).send("You have no connection");
-        }
-        
         // if the fromUserId is same as the loggedInUserId then return toUserId
      
         const newConnections = connections.map((connection) => {
