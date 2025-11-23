@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
-const url ="mongodb+srv://exploreui:XrEIfat4039qQFeA@nodejs.vlzkbbh.mongodb.net/devTinder7780";
+const url ="mongodb+srv://exploreui:GeNsKpslj7fsDBoY@nodejs.vlzkbbh.mongodb.net/devTinder7780";
 const validator = require("validator");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
