@@ -1,12 +1,13 @@
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
-const url ="mongodb+srv://exploreui:GeNsKpslj7fsDBoY@nodejs.vlzkbbh.mongodb.net/devTinder7780";
 const validator = require("validator");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+
+require('dotenv').config();
 
 app.use(
     cors({
@@ -129,7 +130,7 @@ app.post("/login", async(req, res) => {
          const isPasswordValid = await bcrypt.compare(password, user.password);
          if(isPasswordValid){
             // if password is valid, send the token
-            const token = await jwt.sign({_id: user._id}, "Dev@Tinder", {expiresIn: "1d"})
+            const token = await jwt.sign({_id: user._id}, process.env.JWT_SECRETE_KEY, {expiresIn: "1d"})
             res.cookie("token", token, {expires: new Date(Date.now() + 8 * 360000)});
             res.json({message: "Login Successful, Welcome " + user.firstName, data: user})
          }else{
@@ -147,7 +148,7 @@ const userAuth = async (req, res, next) => {
         if(!token){
             return res.status(401).send("Invalid token or expired")
         }
-        const {_id} = await jwt.verify(token, "Dev@Tinder");
+        const {_id} = await jwt.verify(token, process.env.JWT_SECRETE_KEY);
         const user = await User.findById(_id);
         if(!user){
             return res.status(401).send("User does not exists");
@@ -358,11 +359,11 @@ app.get("/feed", userAuth, async(req, res) => {
     }
 })
 
-const connectDB = async () => await mongoose.connect(url)
+const connectDB = async () => await mongoose.connect(process.env.DB_CONNECTION_KEY)
 
 connectDB().then(() => {
     console.log("Database connection established!")
-    app.listen(7780, () => console.log("server listening on port 7780!!"));
+    app.listen(process.env.PORT, () => console.log("server listening on port 7780!!"));
 }).catch((err) => {
     console.log("Database can't be connected " + err);
 })
